@@ -2,18 +2,18 @@
 %{
 Title:          split_fuel_injection_calc
 
-Description:    This script calcualtes split fuel injection loads from a
+Description:    This script calculates split fuel injection loads from a
                 provided single injection load profiles.
                 It should be noted that this script is embedded within a
-                modeFRONTIER workflow in which it takes inputs and ouputs.
+                modeFRONTIER workflow in which it takes inputs and outputs.
                 
 Inputs:         
-                Fuel injection load for single pulse (high and load)
-                Injection timings for start of injection and control ratio
+                Fuel injection load for single pulse (high and low load)
+                Injection timings for start of injection and control ratio.
 
 Outputs:
-                Start and end fuel injection timings, and dwells for split
-                fuel injections.
+                Split fuel injection timings, resultant ratios, and split 
+                injection profiles.
 
 
 Author: Laurel Asimiea
@@ -25,7 +25,7 @@ Last Modified: 02/06/2021
 
 format short g
 
-% load low or high fuel load using a simple changer  
+% low or high fuel load using a simple changer  
 inj_params = struct;
 swt_fuel_load = 0;                                                  
 if swt_fuel_load == 0
@@ -42,14 +42,14 @@ inj_params.fuelflowrate_maxidx = find(inj_params.fuelflowrate == max(inj_params.
 
 
 %=============================================== SECTION 2 =================================================%
-% The injection pulses are calcualted in this section. The section is
+% The injection pulses are calculated in this section. The section is
 % divided into 2 parts; Rise and Fall which model the opening and closing
-% dynamics of the fuel injector noozle tip
+% dynamics of the fuel injector nozzle tip
 
 % ====================
 % 1st Injection
 % ====================
-p1_quantity = 0.95 * inj_params.total_fuel_quantity;                                          % 0.95 is p1_vfp provided from modefrontier
+p1_quantity = 0.95 * inj_params.total_fuel_quantity;                        % 0.95 is p1_vfp, ratio of total in 1st pulse provided from modefrontier
 
 % PART 1: Creation of the pusle (p1) fuel injection profile Rise (r) slope. 
 p1_duration_fuelflow_r= inj_params.timeline(1:inj_params.fuelflowrate_maxidx);     
@@ -70,7 +70,7 @@ p1_timeline_f = p1_duration_fuelflow_f(p1_closest_idx_f+1:end);                 
 p1_fuelprofile_f = p1_fuel_fuelflow_f(p1_closest_idx_f+1:end);                                          % fuel values from max fuel flowrate to end
 p1_fuelprofile_lastval_f = p1_fuelprofile_f(end);                                                       % last fuel value 
 
-% Build teh complete timeline and fuel flowrate for pulse 1 (p1)
+% Build the complete timeline and fuel flowrate for pulse 1 (p1)
 new_inj_params.p1_timeline = inj_params.timeline(1:length(p1_timeline_f)+length(p1_timeline_r));
 new_inj_params.p1_fuelprofile = [p1_fuelprofile_r;p1_fuelprofile_f];
 
@@ -106,7 +106,7 @@ new_inj_params.p2_fuelprofile = [p2_fuelprofile_r;p2_fuelprofile_f];
 % ===============
 % Outputs
 % ===============
-% Outputs to FIRE .ssf file via modeFRONTIER. Fire requires the following injection paramters:
+% Outputs to AVL FIRE .ssf file via modeFRONTIER. AVL Fire requires the following injection parameters to run 3D CFD Engine Sim
 rpm = 1500;     % engine speed
 
 % For p1:
@@ -158,7 +158,7 @@ plot(inj_params.timeline, inj_params.fuelflowrate, 'b')
 
 
 
-%SoI_p1, EoI_p1 & SoI_p2, EoI_p2 are obtained from the calculator in
+%SoI_p1, EoI_p1 & SoI_p2, EoI_p2 can be calculated here BUT there is a calculator in
 %modeFRONTIER. 
 
 
